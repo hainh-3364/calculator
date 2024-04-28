@@ -1,22 +1,18 @@
 import { calculation } from "../const/calculation";
 
 export function handleAddition(equation) {
-  console.log(equation);
   return equation.beforeNumber + equation.afterNumber;
 }
 
 export function handleMultiplication(equation) {
-  console.log(equation);
   return equation.beforeNumber * equation.afterNumber;
 }
 
 export function handleSubtraction(equation) {
-  console.log(equation);
   return equation.beforeNumber - equation.afterNumber;
 }
 
 export function handleDivination(equation) {
-  console.log(equation);
   try {
     return (equation.afterNumber =
       equation.beforeNumber / equation.afterNumber);
@@ -26,7 +22,6 @@ export function handleDivination(equation) {
   }
 }
 export function handleEquation(equation) {
-  console.log(equation);
   switch (equation.calculation) {
     case calculation.ADDITION: {
       return handleAddition(equation);
@@ -42,7 +37,7 @@ export function handleEquation(equation) {
     }
     default: {
       //statements;
-      return 0;
+      return equation.beforeNumber;
     }
   }
 }

@@ -4,15 +4,10 @@ import "./App.css";
 import { Equation } from "./models/equation";
 import { calculation } from "./const/calculation";
 import { CalculationStatus } from "./const/calculationStatus";
-import {
-  handleAddition,
-  handleSubtraction,
-  handleMultiplication,
-  handleDivination,
-  handleEquation,
-} from "./handlers/handleCalculations.js";
+import { handleEquation } from "./handlers/handleCalculations.js";
 
 function App() {
+  const [numberInput, setNumberInput] = useState<string>("0");
   const [result, setResult] = useState(0);
   const [calFlag, setCalFlag] = useState(0);
   const [equation, setEquation] = useState<Equation>({
@@ -21,20 +16,45 @@ function App() {
     afterNumber: 0,
   });
 
-  const changeNumberHandler = (number: number) => {
-    if (calFlag === CalculationStatus.AFTER)
-      setEquation((previous) => ({ ...previous, afterNumber: number }));
-    else {
-      setEquation((previous) => ({
-        ...previous,
-        beforeNumber: number,
-        afterNumber: 0,
-      }));
+  const changeNumberInput = (number: number) => {
+    setNumberInput((prev) => {
+      if (prev !== "0") {
+        return prev.concat(number.toString());
+      } else {
+        return number.toString();
+      }
+    });
+  };
+  const changeNumberHandler = () => {
+    if (calFlag === CalculationStatus.AFTER) {
+      equation.afterNumber = Number(numberInput);
+      setNumberInput("0");
+    } else {
+      equation.beforeNumber = Number(numberInput);
+      setNumberInput("0");
     }
-    setCalFlag(CalculationStatus.BEFORE);
   };
 
-  useEffect(() => {});
+  const numberButtons = [];
+
+  for (let i = 0; i < 10; i++) {
+    numberButtons.push(
+      <button
+        key={i}
+        type="button"
+        onClick={() => {
+          changeNumberInput(i);
+        }}
+      >
+        {i}
+      </button>
+    );
+  }
+
+  useEffect(() => {
+    setResult(Number(numberInput));
+  }, [equation.calculation, equation.afterNumber, equation.beforeNumber]);
+
   return (
     <div className="App">
       <header className="App-header">
@@ -42,101 +62,17 @@ function App() {
           <p>Input value: {result}</p>
           <input
             type="text"
-            onChange={(event) =>
-              changeNumberHandler(Number(event?.target.value))
-            }
+            onChange={(event) => changeNumberInput(Number(event?.target.value))}
           />
-          <button
-            type="button"
-            onClick={() => {
-              changeNumberHandler(1);
-            }}
-          >
-            1
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              changeNumberHandler(2);
-            }}
-          >
-            2
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              changeNumberHandler(3);
-            }}
-          >
-            3
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              changeNumberHandler(4);
-            }}
-          >
-            4
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              changeNumberHandler(5);
-            }}
-          >
-            5
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              changeNumberHandler(6);
-            }}
-          >
-            6
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              changeNumberHandler(7);
-            }}
-          >
-            7
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              changeNumberHandler(8);
-            }}
-          >
-            8
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              changeNumberHandler(9);
-            }}
-          >
-            9
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              changeNumberHandler(0);
-            }}
-          >
-            0
-          </button>
+          <div>{numberButtons}</div>
           <button
             type="button"
             onClick={() => {
               setCalFlag(CalculationStatus.AFTER);
-              setResult(handleAddition(equation));
-              setEquation((previous) => ({
-                ...previous,
-                calculation: calculation.ADDITION,
-                beforeNumber: result,
-                afterNumber: 0,
-              }));
+              changeNumberHandler();
+              equation.beforeNumber = handleEquation(equation);
+              equation.calculation = calculation.ADDITION;
+              console.log(equation);
             }}
           >
             +
@@ -145,11 +81,9 @@ function App() {
             type="button"
             onClick={() => {
               setCalFlag(CalculationStatus.AFTER);
-              setEquation((previous) => ({
-                ...previous,
-                calculation: calculation.SUBTRACTION,
-              }));
-              handleSubtraction(equation);
+              changeNumberHandler();
+              equation.beforeNumber = handleEquation(equation);
+              equation.calculation = calculation.SUBTRACTION;
             }}
           >
             -
@@ -158,13 +92,9 @@ function App() {
             type="button"
             onClick={() => {
               setCalFlag(CalculationStatus.AFTER);
-              setResult(handleMultiplication(equation));
-              setEquation((previous) => ({
-                ...previous,
-                calculation: calculation.MULTIPLICATION,
-                beforeNumber: result,
-                afterNumber: 0,
-              }));
+              changeNumberHandler();
+              equation.beforeNumber = handleEquation(equation);
+              equation.calculation = calculation.MULTIPLICATION;
             }}
           >
             *
@@ -173,13 +103,9 @@ function App() {
             type="button"
             onClick={() => {
               setCalFlag(CalculationStatus.AFTER);
-              setResult(handleDivination(equation));
-              setEquation((previous) => ({
-                ...previous,
-                calculation: calculation.DIVISION,
-                beforeNumber: result,
-                afterNumber: 0,
-              }));
+              changeNumberHandler();
+              equation.beforeNumber = handleEquation(equation);
+              equation.calculation = calculation.DIVISION;
             }}
           >
             /
@@ -187,13 +113,11 @@ function App() {
           <button
             type="button"
             onClick={() => {
-              setCalFlag(CalculationStatus.BEFORE);
-              setResult(handleEquation(equation));
-              setEquation((previous) => ({
-                ...previous,
-                beforeNumber: result,
-                afterNumber: 0,
-              }));
+              changeNumberHandler();
+              equation.beforeNumber = handleEquation(equation);
+              equation.afterNumber = 0;
+              equation.calculation = calculation.NONE;
+              setResult(equation.beforeNumber);
             }}
           >
             =
